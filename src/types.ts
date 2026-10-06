@@ -56,6 +56,7 @@ export interface DensityAudit {
 
 export interface AnalysisResult {
   engineUsed?: string;
+  engineNote?: string;
   overview: AnalysisOverview;
   keywords: KeywordItem[];
   topViralHooks: ViralHook[];

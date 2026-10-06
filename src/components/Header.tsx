@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, History, BookOpen, Zap, Code2 } from 'lucide-react';
+import { Search, History, BookOpen } from 'lucide-react';
 import { SAMPLE_ARTICLES, SampleArticle } from '../data/sampleArticles';
 
 interface HeaderProps {
@@ -10,10 +10,11 @@ interface HeaderProps {
   engine: string;
   setEngine: (e: string) => void;
   groqConfigured: boolean;
+  groqModel?: string | null;
   onSelectSample: (sample: SampleArticle) => void;
   historyCount: number;
   onToggleHistory: () => void;
-  onOpenExport: () => void;
+  onOpenExport?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   engine,
   setEngine,
   groqConfigured,
+  groqModel,
   onSelectSample,
   historyCount,
   onToggleHistory,
@@ -43,18 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <Search className="w-2.5 h-2.5" /> 2026 Algorithmic
                 </span>
-                {groqConfigured ? (
-                  <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                    <Zap className="w-2.5 h-2.5 text-amber-400 fill-amber-400" /> Groq Active
-                  </span>
-                ) : (
-                  <span
-                    className="hidden xl:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-400 bg-slate-900 border border-slate-800"
-                    title="Add GROQ_API_KEY in Secrets panel to enable lightning-speed Groq inference"
-                  >
-                    <Zap className="w-2.5 h-2.5 text-slate-500" /> Groq Supported
-                  </span>
-                )}
               </div>
               <p className="text-xs text-slate-400">
                 Extract high-intent search terms & viral click-magnet keywords from any article
@@ -62,30 +52,8 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Quick Controls: Engine, Samples, Platform, Goal & History */}
+          {/* Quick Controls: Samples, Platform, Goal & History */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* AI Engine Selector (Groq vs Gemini) */}
-            <div className="flex items-center bg-slate-900/90 rounded-lg p-1 border border-slate-800 text-xs">
-              <span className="text-[11px] text-slate-400 px-1.5 hidden xl:inline flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-400" /> Engine:
-              </span>
-              <select
-                value={engine}
-                onChange={(e) => setEngine(e.target.value)}
-                className="bg-transparent text-xs text-slate-200 font-medium focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="auto" className="bg-slate-900 text-slate-200">
-                  Auto ({groqConfigured ? 'Groq Llama 3.3' : 'Gemini'})
-                </option>
-                <option value="groq" className="bg-slate-900 text-slate-200">
-                  ⚡ Groq (Llama-3.3 70B) {groqConfigured ? '✓' : '(Requires Key)'}
-                </option>
-                <option value="gemini" className="bg-slate-900 text-slate-200">
-                  ✨ Google Gemini
-                </option>
-              </select>
-            </div>
-
             {/* Try Sample Dropdown */}
             <div className="relative group">
               <button
@@ -146,17 +114,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <option value="long_tail_questions" className="bg-slate-900 text-slate-200">Long-Tail & PAA Snippets</option>
               </select>
             </div>
-
-            {/* Export Code HTML CSS JS */}
-            <button
-              onClick={onOpenExport}
-              title="Export complete standalone website in HTML, CSS & JavaScript"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer"
-            >
-              <Code2 className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Export Code (HTML/CSS/JS)</span>
-              <span className="sm:hidden">Export</span>
-            </button>
 
             {/* History Toggle */}
             <button

@@ -33,6 +33,7 @@ export default function App() {
   const [goal, setGoal] = useState<string>('balanced');
   const [engine, setEngine] = useState<string>('auto');
   const [groqConfigured, setGroqConfigured] = useState<boolean>(false);
+  const [groqModel, setGroqModel] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState<number>(0);
@@ -49,10 +50,13 @@ export default function App() {
     fetch('/api/engine-status')
       .then((res) => res.json())
       .then((data) => {
-        if (data && typeof data.groqConfigured === 'boolean') {
-          setGroqConfigured(data.groqConfigured);
-          if (data.groqConfigured) {
-            setEngine('groq');
+        if (data) {
+          setGroqConfigured(Boolean(data.groqConfigured));
+          setGroqModel(data.groqModel || null);
+          if (data.recommendedEngine === 'gemini') {
+            setEngine('gemini');
+          } else if (data.groqConfigured) {
+            setEngine('auto');
           }
         }
       })
@@ -211,6 +215,7 @@ export default function App() {
         engine={engine}
         setEngine={setEngine}
         groqConfigured={groqConfigured}
+        groqModel={groqModel}
         onSelectSample={handleSelectSample}
         historyCount={history.length}
         onToggleHistory={() => setIsHistoryOpen(true)}
@@ -219,26 +224,6 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Groq notice banner if user selected Groq and it's not configured */}
-        {engine === 'groq' && !groqConfigured && (
-          <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200 flex items-center justify-between gap-3 max-w-4xl mx-auto shadow-md">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase">
-                Groq Setup
-              </span>
-              <span>
-                To use Groq with Llama-3.3 70B, configure your <code className="px-1 py-0.5 rounded bg-slate-900 border border-amber-500/30 text-amber-300 font-mono text-[11px]">GROQ_API_KEY</code> in the <strong>Settings &gt; Secrets</strong> panel. Google Gemini will serve as the automatic fallback if unavailable.
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setEngine('auto')}
-              className="px-2.5 py-1 rounded bg-slate-900 text-xs font-semibold text-slate-200 hover:text-white border border-slate-700 whitespace-nowrap cursor-pointer"
-            >
-              Switch to Auto
-            </button>
-          </div>
-        )}
         {/* Hero Banner / Instructions */}
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-indigo-500/10 text-amber-300 border border-amber-500/20">
@@ -321,6 +306,25 @@ export default function App() {
         {/* Analysis Results View */}
         {result && (
           <div ref={resultsRef} className="space-y-6 pt-4">
+            {/* Engine Failover Notice if applicable */}
+            {result.engineNote && (
+              <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200 flex items-center justify-between gap-3 shadow-md">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase shrink-0">
+                    Engine Failover
+                  </span>
+                  <span>{result.engineNote}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setResult({ ...result, engineNote: undefined })}
+                  className="text-amber-400 hover:text-white text-xs underline shrink-0 cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             {/* 1. Executive Scorecard & Topic Overview */}
             <OverviewCards result={result} />
 
