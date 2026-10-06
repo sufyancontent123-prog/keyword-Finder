@@ -1,0 +1,6 @@
+{
+  "name": "RankViral SEO & Keyword Intelligence Engine",
+  "description": "Analyze articles to uncover high-intent SEO keywords, viral search terms, ranking difficulty, search volume potential, content gaps, and algorithmic hook suggestions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
